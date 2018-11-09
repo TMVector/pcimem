@@ -215,6 +215,11 @@ int main(int argc, char **argv) {
                 }
             }
             fprintf(stderr, "\n");
+
+            if(verbose) {
+                fflush(stderr);
+                fflush(stdout);
+            }
         }
 
         fclose(input_fp);
