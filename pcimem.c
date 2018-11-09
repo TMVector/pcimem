@@ -22,6 +22,11 @@
  *
  */
 
+/*
+ * This program has been hijacked for a quick test/demo.
+ *
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -34,6 +39,7 @@
 #include <termios.h>
 #include <sys/types.h>
 #include <sys/mman.h>
+#include <sys/stat.h>
 
 #define PRINT_ERROR \
 	do { \
@@ -100,12 +106,16 @@ int main(int argc, char **argv) {
     printf("Target offset is 0x%x, page size is %ld\n", (int) target, sysconf(_SC_PAGE_SIZE));
     fflush(stdout);
 
-    target_base = target & ~(sysconf(_SC_PAGE_SIZE)-1);
-    if (target + items_count*type_width - target_base > map_size)
-	map_size = target + items_count*type_width - target_base;
+    /* Map entire file */
 
-    /* Map one page */
-    printf("mmap(%d, %d, 0x%x, 0x%x, %d, 0x%x)\n", 0, map_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, (int) target);
+    target_base = 0;
+
+    // Get file length
+    struct stat st;
+    stat(filename, &st);
+    map_size = st.st_size;
+
+    printf("mmap(%d, 0x%x, 0x%x, 0x%x, %d, 0x%x)\n", 0, map_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, (int) target);
 
     map_base = mmap(0, map_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, target_base);
     if(map_base == (void *) -1) PRINT_ERROR;
@@ -114,7 +124,7 @@ int main(int argc, char **argv) {
 
     for (i = 0; i < items_count; i++) {
 
-        virt_addr = map_base + target + i*type_width - target_base;
+        virt_addr = map_base + target + i*type_width;
         switch(access_type) {
 		case 'b':
 			read_result = *((uint8_t *) virt_addr);
