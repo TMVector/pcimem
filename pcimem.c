@@ -158,6 +158,9 @@ int main(int argc, char **argv) {
         while ((read = getline(&line, &len, input_fp)) != -1) {
             if(verbose)
                 fprintf(stderr, "Read line: %s", line); // Line will end in \n?
+            if(*line == '\n' || *line == '#')
+                continue;
+
             // Parse line. Op has max length 6 (expect)
             if(verbose) fprintf(stderr, "Trying to parse with 3 words...\n");
             if(sscanf(line, "%6s 0x%lx 0x%lx", userop, &userop_addr, &userop_val) != 3) {
