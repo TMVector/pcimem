@@ -203,7 +203,7 @@ int main(int argc, char **argv) {
                     ++expect_total_count;
                     if(read_result == userop_val) {
                         if(verbose)
-                            fprintf(stderr, "Read expected value\n");
+                            fprintf(stderr, "Read expected value (%lx) \n", read_result);
                     }
                     else {
                         fprintf(stderr, "Read UNEXPECTED value: %ld (expected %lx)\n", read_result, userop_val);
