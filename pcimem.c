@@ -71,7 +71,7 @@ int main(int argc, char **argv) {
     char *line = NULL;
     char userop[] = "expect"; // longest valid op
     uint64_t userop_addr = 0, userop_val = 0;
-    uint64_t expect_fail_count = 0;
+    uint64_t expect_fail_count = 0, expect_total_count = 0;
 
     if(argc == 4 && !strcmp(argv[2], "-f")) {
         fprintf(stderr, "\nFile Processing Mode\n\n");
@@ -200,6 +200,7 @@ int main(int argc, char **argv) {
 
                 // Check expected value, if required
                 if(!strcmp(userop, "expect")) {
+                    ++expect_total_count;
                     if(read_result == userop_val) {
                         if(verbose)
                             fprintf(stderr, "Read expected value\n");
@@ -214,13 +215,17 @@ int main(int argc, char **argv) {
                     fprintf(stdout, "%lx %lx\n", userop_addr, read_result);
                 }
             }
-            fprintf(stderr, "\n");
 
             if(verbose) {
+                fprintf(stderr, "\n");
                 fflush(stderr);
                 fflush(stdout);
             }
         }
+
+        fprintf(stderr, "Expected checks: %ld / %ld\n", expect_total_count - expect_fail_count, expect_total_count);
+        if(expect_fail_count > 0)
+          fprintf(stderr, "FAILED %ld checks\n", expect_fail_count);
 
         fclose(input_fp);
         // getline requires we free the buffer even on failure
@@ -294,5 +299,5 @@ int main(int argc, char **argv) {
 
     if(munmap(map_base, map_size) == -1) PRINT_ERROR;
     close(fd);
-    return 0;
+    return ((expect_fail_count == 0) ? 0 : 1);
 }
