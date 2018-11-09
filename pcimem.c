@@ -228,66 +228,66 @@ int main(int argc, char **argv) {
             free(line);
     }
     else {
-        /* Handle reads/writes specificed directly on the CLI */
-        for (i = 0; i < items_count; i++) {
-
-            virt_addr = map_base + target + i*type_width;
-            switch(access_type) {
-                case 'b':
-                        read_result = *((uint8_t *) virt_addr);
-                        break;
-                case 'h':
-                        read_result = *((uint16_t *) virt_addr);
-                        break;
-                case 'w':
-                        read_result = *((uint32_t *) virt_addr);
-                        break;
-                case 'd':
-                        read_result = *((uint64_t *) virt_addr);
-                        break;
-            }
-
-            if (verbose)
-                printf("Value at offset 0x%X (%p): 0x%0*lX\n", (int) target + i*type_width, virt_addr, type_width*2, read_result);
-            else {
-                if (read_result != prev_read_result || i == 0) {
-                    printf("0x%04X: 0x%0*lX\n", (int)(target + i*type_width), type_width*2, read_result);
-                    read_result_dupped = 0;
-                } else {
-                    if (!read_result_dupped)
-                        printf("...\n");
-                    read_result_dupped = 1;
-                }
-            }
-
-            prev_read_result = read_result;
-
-        }
-
-        fflush(stdout);
+        /* Handle reads/writes specified directly on the CLI */
 
         if(argc > 4) {
+            // Do a write
+            virt_addr = map_base + target;
             writeval = strtoull(argv[4], NULL, 0);
             switch(access_type) {
                 case 'b':
                     *((uint8_t *) virt_addr) = writeval;
-                    read_result = *((uint8_t *) virt_addr);
                     break;
                 case 'h':
                     *((uint16_t *) virt_addr) = writeval;
-                    read_result = *((uint16_t *) virt_addr);
                     break;
                 case 'w':
                     *((uint32_t *) virt_addr) = writeval;
-                    read_result = *((uint32_t *) virt_addr);
                     break;
                 case 'd':
                     *((uint64_t *) virt_addr) = writeval;
-                    read_result = *((uint64_t *) virt_addr);
                     break;
             }
-            printf("Written 0x%0*lX; readback 0x%*lX\n", type_width,
-                   writeval, type_width, read_result);
+            printf("Written 0x%0*lX\n", type_width, writeval);
+            fflush(stdout);
+        }
+        else {
+            // Do a read
+            for (i = 0; i < items_count; i++) {
+
+                virt_addr = map_base + target + i*type_width;
+                switch(access_type) {
+                    case 'b':
+                            read_result = *((uint8_t *) virt_addr);
+                            break;
+                    case 'h':
+                            read_result = *((uint16_t *) virt_addr);
+                            break;
+                    case 'w':
+                            read_result = *((uint32_t *) virt_addr);
+                            break;
+                    case 'd':
+                            read_result = *((uint64_t *) virt_addr);
+                            break;
+                }
+
+                if (verbose)
+                    printf("Value at offset 0x%X (%p): 0x%0*lX\n", (int) target + i*type_width, virt_addr, type_width*2, read_result);
+                else {
+                    if (read_result != prev_read_result || i == 0) {
+                        printf("0x%04X: 0x%0*lX\n", (int)(target + i*type_width), type_width*2, read_result);
+                        read_result_dupped = 0;
+                    } else {
+                        if (!read_result_dupped)
+                            printf("...\n");
+                        read_result_dupped = 1;
+                    }
+                }
+
+                prev_read_result = read_result;
+
+            }
+
             fflush(stdout);
         }
     }
