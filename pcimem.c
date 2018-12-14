@@ -179,21 +179,21 @@ int main(int argc, char **argv) {
                 PRINT_ERROR;
             }
             if(userop_addr >= map_size) {
-                fprintf(stderr, "Address out of bounds: %lx\n", userop_addr);
+                fprintf(stderr, "Address out of bounds: 0x%lx\n", userop_addr);
                 PRINT_ERROR;
             }
 
             /* Do the op */
             if(!strcmp(userop, "write")) {
                 if(verbose)
-                    fprintf(stderr, "Writing to %lx: %lx\n", userop_addr, userop_val);
+                    fprintf(stderr, "Writing to 0x%lx: 0x%lx\n", userop_addr, userop_val);
                 // Write the value
                 virt_addr = map_base + userop_addr;
                 *((uint32_t *) virt_addr) = userop_val;
             }
             else {
                 if(verbose)
-                    fprintf(stderr, "Reading from %lx\n", userop_addr);
+                    fprintf(stderr, "Reading from 0x%lx\n", userop_addr);
                 // Read the value
                 virt_addr = map_base + userop_addr;
                 read_result = *((uint32_t *) virt_addr);
@@ -203,16 +203,16 @@ int main(int argc, char **argv) {
                     ++expect_total_count;
                     if(read_result == userop_val) {
                         if(verbose)
-                            fprintf(stderr, "Read expected value (%lx) \n", read_result);
+                            fprintf(stderr, "Read expected value (0x%lx) \n", read_result);
                     }
                     else {
-                        fprintf(stderr, "Read UNEXPECTED value: %ld (expected %lx)\n", read_result, userop_val);
+                        fprintf(stderr, "Read UNEXPECTED value: 0x%lx (expected 0x%lx)\n", read_result, userop_val);
                         ++expect_fail_count;
                     }
                 }
                 else {
                     // userop == "read"
-                    fprintf(stdout, "%lx %lx\n", userop_addr, read_result);
+                    fprintf(stdout, "0x%lx 0x%lx\n", userop_addr, read_result);
                 }
             }
 
