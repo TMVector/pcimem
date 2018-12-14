@@ -90,7 +90,7 @@ int main(int argc, char **argv) {
                     "\t*count  : number of items to read:  w*100 will dump 100 words\n"
                     "\tdata    : data to be written\n\n"
                     "\n"
-                    "Usage:\t%s { sysfile } { inputfile }\n"
+                    "Usage:\t%s { sysfile } -f { inputfile }\n"
                     "\tsys file: sysfs file for the pci resource to act on\n"
                     "\tinput file: source file containing data to be written in \"operation 0xaddress [0xvalue]\",\n"
                     "\t\tline-separated format. This supports 32-bit values only. Operations: read, write, expect.\n"
