@@ -2,3 +2,6 @@
 *~
 *.o
 pcimem
+libpcimem.so
+*.swp
+__pycache__/
