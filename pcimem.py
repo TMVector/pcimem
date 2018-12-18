@@ -13,8 +13,7 @@ def wrap_function(func, restype, argtypes):
     func.argtypes = argtypes
     return func
 
-_scriptdir = os.path.abspath(os.path.dirname(__file__))
-_pcimem = CDLL(os.path.join(_scriptdir, "libpcimem.so"))
+_pcimem = CDLL("libpcimem.so")
 
 wrap_function(_pcimem.Pcimem_new,         c_void_p, [c_char_p])
 wrap_function(_pcimem.Pcimem_close,       None,     [c_void_p])
@@ -124,4 +123,7 @@ class Pcimem(object):
         return self
 
     def __exit__(self, type, value, traceback):
+        self.close()
+
+    def __del__(self):
         self.close()
