@@ -1,6 +1,7 @@
 from ctypes import *
 import os
 from array import array
+import sys
 
 
 #
@@ -13,7 +14,18 @@ def wrap_function(func, restype, argtypes):
     func.argtypes = argtypes
     return func
 
-_pcimem = CDLL("libpcimem.so")
+_pcimem_found = False
+for loc in ["libpcimem.so",
+            "./libpcimem.so",
+            os.path.join(os.path.dirname(sys.modules[__name__].__file__), "libpcimem.so")]:
+    try:
+        _pcimem = CDLL(loc)
+        _pcimem_found = True
+        break
+    except OSError:
+        pass
+if not _pcimem_found:
+    raise OSError("libpcimem.so: cannot open shared object file")
 
 wrap_function(_pcimem.Pcimem_new,         c_void_p, [c_char_p])
 wrap_function(_pcimem.Pcimem_close,       None,     [c_void_p])
