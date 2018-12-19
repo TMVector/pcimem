@@ -34,18 +34,30 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <sys/mman.h>
+#include <stdio.h>
 
+#define MOCK(f_, ...) fprintf(stderr, "Pcimem[mock]> " f_ "\n", ##__VA_ARGS__)
+#define MOCKBREAK() fprintf(stderr, "\n")
 
 struct Pcimem_h
 {
   int fd;
   void *map_base;
   size_t map_length;
+  bool mock;
 };
 
-struct Pcimem_h *Pcimem_new(const char *const file_path)
+struct Pcimem_h *Pcimem_new(const char *const file_path,
+                            const bool mock)
 {
   struct Pcimem_h *ph = malloc(sizeof(ph));
+
+  ph->mock = mock;
+  if (ph->mock) {
+    MOCK("Opened %s", file_path);
+    MOCKBREAK();
+    return ph;
+  }
 
   // Open the file
   ph->fd = open(file_path,  O_RDWR | O_SYNC);
@@ -79,6 +91,12 @@ allocated_err:
 
 void Pcimem_close(struct Pcimem_h *ph)
 {
+  if (ph->mock) {
+    MOCK("Closed");
+    MOCKBREAK();
+    return;
+  }
+
   // We can't really do anything if these cleanup calls fail,
   // but the kernel will cleanup on process exit in any case.
 
@@ -90,6 +108,12 @@ void Pcimem_close(struct Pcimem_h *ph)
 uint32_t Pcimem_read_word(const struct Pcimem_h *const ph,
                           const uint64_t address)
 {
+  if (ph->mock) {
+    MOCK("READ WORD   0x%08lx", address);
+    MOCKBREAK();
+    return 0;
+  }
+
   uint32_t *virt_addr = (uint32_t*)(ph->map_base + address);
   return *virt_addr;
 }
@@ -98,6 +122,12 @@ void Pcimem_write_word(const struct Pcimem_h *const ph,
                        const uint64_t address,
                        const uint32_t value)
 {
+  if (ph->mock) {
+    MOCK("WRITE WORD  0x%08lx 0x%08x", address, value);
+    MOCKBREAK();
+    return;
+  }
+
   uint32_t *virt_addr = (uint32_t*)(ph->map_base + address);
   *virt_addr = value;
 }
@@ -109,6 +139,12 @@ void Pcimem_read_range(const struct Pcimem_h *const ph,
                        const uint64_t address,
                        uint32_t *const words)
 {
+  if (ph->mock) {
+    MOCK("READ RANGE  0x%08lx * %d", address, num_words);
+    MOCKBREAK();
+    return;
+  }
+
   uint32_t *virt_addr = (uint32_t*)(ph->map_base + address);
 
   for (uint32_t i = 0; i < num_words; ++i) {
@@ -121,6 +157,15 @@ void Pcimem_write_range(const struct Pcimem_h *const ph,
                         const uint64_t address,
                         const uint32_t *const words)
 {
+  if (ph->mock) {
+    MOCK("WRITE RANGE 0x%08lx * %d:", address, num_words);
+    for (uint32_t i = 0; i < num_words; ++i) {
+      MOCK("      DATA  0x%08lx 0x%08x", address + i, words[i]);
+    }
+    MOCKBREAK();
+    return;
+  }
+
   uint32_t *virt_addr = (uint32_t*)(ph->map_base + address);
 
   for (uint32_t i = 0; i < num_words; ++i) {
@@ -163,6 +208,12 @@ void Pcimem_read_fifo(const struct Pcimem_h *const ph,
                       const uint64_t address,
                       uint32_t *const words)
 {
+  if (ph->mock) {
+    MOCK("READ FIFO   0x%08lx * %d", address, num_words);
+    MOCKBREAK();
+    return;
+  }
+
   uint32_t *virt_addr = (uint32_t*)(ph->map_base + address);
   Pcimem_copy_fifo(ph, num_words, fifo_fill_level_address, virt_addr, words, true);
 }
@@ -173,6 +224,15 @@ void Pcimem_write_fifo(const struct Pcimem_h *const ph,
                        const uint64_t address,
                        const uint32_t *const words)
 {
+  if (ph->mock) {
+    MOCK("WRITE FIFO  0x%08lx * %d:", address, num_words);
+    for (uint32_t i = 0; i < num_words; ++i) {
+      MOCK("      DATA  0x%08lx 0x%08x", address, words[i]);
+    }
+    MOCKBREAK();
+    return;
+  }
+
   uint32_t *virt_addr = (uint32_t*)(ph->map_base + address);
   Pcimem_copy_fifo(ph, num_words, fifo_fill_level_address, words, virt_addr, false);
 }

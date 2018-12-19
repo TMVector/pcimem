@@ -64,9 +64,9 @@ def _create_array(length):
 #
 
 class Pcimem(object):
-    def __init__(self, file_path):
+    def __init__(self, file_path, mock=False):
         self.file_path = file_path
-        self.__handle = _pcimem.Pcimem_new(file_path.encode('utf-8'))
+        self.__handle = _pcimem.Pcimem_new(file_path.encode('utf-8'), mock)
         if self.__handle is None:
             raise IOError("Could not open Pcimem object")
 
