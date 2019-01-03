@@ -236,3 +236,27 @@ void Pcimem_write_fifo(const struct Pcimem_h *const ph,
   uint32_t *virt_addr = (uint32_t*)(ph->map_base + address);
   Pcimem_copy_fifo(ph, num_words, fifo_fill_level_address, words, virt_addr, false);
 }
+
+void Pcimem_read_fifo_unsafe(const struct Pcimem_h *const ph,
+                             const uint32_t num_words,
+                             const uint64_t address,
+                             uint32_t *const words)
+{
+  uint32_t *virt_addr = (uint32_t*)(ph->map_base + address);
+
+  for (uint32_t i = 0; i < num_words; ++i) {
+    words[i] = virt_addr[0];
+  }
+}
+
+void Pcimem_write_fifo_unsafe(const struct Pcimem_h *const ph,
+                              const uint32_t num_words,
+                              const uint64_t address,
+                              const uint32_t *const words)
+{
+  uint32_t *virt_addr = (uint32_t*)(ph->map_base + address);
+
+  for (uint32_t i = 0; i < num_words; ++i) {
+    virt_addr[0] = words[i];
+  }
+}
