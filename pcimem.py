@@ -43,8 +43,10 @@ wrap_function(_pcimem.Pcimem_write_fifo_unsafe,  None,     [c_void_p, c_uint32, 
 # Array helpers
 #
 
+array_int32_t = 'i'
 array_uint32_t = 'I'
 if (array(array_uint32_t).itemsize != 4):
+    array_int32_t = 'l'
     array_uint32_t = 'L'
 assert(array(array_uint32_t).itemsize == 4)
 
@@ -105,7 +107,7 @@ class Pcimem(object):
         if isinstance(data, array) and data.itemsize == 4:
             arr = data
         else:
-            arr = array(array_uint32_t, data)
+            arr = array(array_int32_t, data)
         arr_c = _array_pointer(arr)
 
         _pcimem.Pcimem_write_range(self.__handle, len(arr), address, arr_c)
@@ -127,7 +129,7 @@ class Pcimem(object):
         if isinstance(data, array) and data.itemsize == 4:
             arr = data
         else:
-            arr = array(array_uint32_t, data)
+            arr = array(array_int32_t, data)
         arr_c = _array_pointer(arr)
 
         _pcimem.Pcimem_write_fifo(self.__handle, len(arr), fifo_fill_level_address, address, arr_c)
@@ -149,7 +151,7 @@ class Pcimem(object):
         if isinstance(data, array) and data.itemsize == 4:
             arr = data
         else:
-            arr = array(array_uint32_t, data)
+            arr = array(array_int32_t, data)
         arr_c = _array_pointer(arr)
 
         _pcimem.Pcimem_write_fifo_unsafe(self.__handle, len(arr), address, arr_c)
