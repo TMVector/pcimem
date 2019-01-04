@@ -36,6 +36,9 @@
 #include <sys/mman.h>
 #include <stdio.h>
 
+// For memcpy
+#include <string.h>
+
 #define MOCK(f_, ...) fprintf(stderr, "Pcimem[mock]> " f_ "\n", ##__VA_ARGS__)
 #define MOCKBREAK() fprintf(stderr, "\n")
 
@@ -171,6 +174,26 @@ void Pcimem_write_range(const struct Pcimem_h *const ph,
   for (uint32_t i = 0; i < num_words; ++i) {
     virt_addr[i] = words[i];
   }
+}
+
+void Pcimem_read_range_memcpy(const struct Pcimem_h *const ph,
+                              const uint32_t num_words,
+                              const uint64_t address,
+                              uint32_t *const words)
+{
+  uint32_t *virt_addr = (uint32_t*)(ph->map_base + address);
+
+  memcpy(words, virt_addr, sizeof(uint32_t)*num_words);
+}
+
+void Pcimem_write_range_memcpy(const struct Pcimem_h *const ph,
+                               const uint32_t num_words,
+                               const uint64_t address,
+                               const uint32_t *const words)
+{
+  uint32_t *virt_addr = (uint32_t*)(ph->map_base + address);
+
+  memcpy(virt_addr, words, sizeof(uint32_t)*num_words);
 }
 
 void Pcimem_copy_fifo(const struct Pcimem_h *const ph,

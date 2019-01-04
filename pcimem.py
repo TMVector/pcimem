@@ -33,6 +33,8 @@ wrap_function(_pcimem.Pcimem_read_word,          c_uint32, [c_void_p, c_uint64])
 wrap_function(_pcimem.Pcimem_write_word,         None,     [c_void_p, c_uint64, c_uint32])
 wrap_function(_pcimem.Pcimem_read_range,         None,     [c_void_p, c_uint32, c_uint64, POINTER(c_uint32)])
 wrap_function(_pcimem.Pcimem_write_range,        None,     [c_void_p, c_uint32, c_uint64, POINTER(c_uint32)])
+wrap_function(_pcimem.Pcimem_read_range_memcpy,  None,     [c_void_p, c_uint32, c_uint64, POINTER(c_uint32)])
+wrap_function(_pcimem.Pcimem_write_range_memcpy, None,     [c_void_p, c_uint32, c_uint64, POINTER(c_uint32)])
 wrap_function(_pcimem.Pcimem_read_fifo,          None,     [c_void_p, c_uint32, c_uint64, c_uint64, POINTER(c_uint32)])
 wrap_function(_pcimem.Pcimem_read_fifo,          None,     [c_void_p, c_uint32, c_uint64, c_uint64, POINTER(c_uint32)])
 wrap_function(_pcimem.Pcimem_write_fifo_unsafe,  None,     [c_void_p, c_uint32, c_uint64, POINTER(c_uint32)])
@@ -111,6 +113,28 @@ class Pcimem(object):
         arr_c = _array_pointer(arr)
 
         _pcimem.Pcimem_write_range(self.__handle, len(arr), address, arr_c)
+
+    def read_range_memcpy(self, address, numWords):
+        if self is None: raise ValueError("IO operation on closed pcimem")
+
+        # Create the array in python so it is managed memory
+        arr, arr_c = _create_array(numWords)
+
+        _pcimem.Pcimem_read_range_memcpy(self.__handle, numWords, address, arr_c)
+
+        return arr
+
+    def write_range_memcpy(self, address, data):
+        if self is None: raise ValueError("IO operation on closed pcimem")
+
+        # Make sure the data can be handled by C
+        if isinstance(data, array) and data.itemsize == 4:
+            arr = data
+        else:
+            arr = array(array_int32_t, data)
+        arr_c = _array_pointer(arr)
+
+        _pcimem.Pcimem_write_range_memcpy(self.__handle, len(arr), address, arr_c)
 
     def read_fifo(self, fifo_fill_level_address, address, numWords):
         if self is None: raise ValueError("IO operation on closed pcimem")
