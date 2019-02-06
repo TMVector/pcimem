@@ -50,8 +50,10 @@ struct Pcimem_h
   bool mock;
 };
 
-struct Pcimem_h *Pcimem_new(const char *const file_path,
-                            const bool mock)
+struct Pcimem_h *Pcimem_new_(const char *const file_path,
+                             const bool mock,
+                             const int open_flags,
+                             const int mmap_flags)
 {
   struct Pcimem_h *ph = malloc(sizeof(struct Pcimem_h));
 
@@ -63,7 +65,7 @@ struct Pcimem_h *Pcimem_new(const char *const file_path,
   }
 
   // Open the file
-  ph->fd = open(file_path,  O_RDWR | O_SYNC);
+  ph->fd = open(file_path, open_flags);
   if (ph->fd == -1)
     goto allocated_err;
 
@@ -76,7 +78,7 @@ struct Pcimem_h *Pcimem_new(const char *const file_path,
   ph->map_base = mmap( NULL /* addr; let kernel choose */
                      , ph->map_length /* length */
                      , PROT_READ | PROT_WRITE /* prot */
-                     , MAP_SHARED /* flags */
+                     , mmap_flags /* flags */
                      , ph->fd /*fd */
                      , 0 /* offset */
                      );
@@ -90,6 +92,12 @@ opened_err:
 allocated_err:
   free(ph);
   return NULL;
+}
+
+struct Pcimem_h *Pcimem_new(const char *const file_path,
+                            const bool mock)
+{
+  return Pcimem_new_(file_path, mock, O_RDWR | O_SYNC, MAP_SHARED);
 }
 
 void Pcimem_close(struct Pcimem_h *ph)
