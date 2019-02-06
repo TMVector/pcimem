@@ -53,7 +53,7 @@ struct Pcimem_h
 struct Pcimem_h *Pcimem_new(const char *const file_path,
                             const bool mock)
 {
-  struct Pcimem_h *ph = malloc(sizeof(ph));
+  struct Pcimem_h *ph = malloc(sizeof(struct Pcimem_h));
 
   ph->mock = mock;
   if (ph->mock) {
@@ -163,7 +163,7 @@ void Pcimem_write_range(const struct Pcimem_h *const ph,
   if (ph->mock) {
     MOCK("WRITE RANGE 0x%08lx * %d:", address, num_words);
     for (uint32_t i = 0; i < num_words; ++i) {
-      MOCK("      DATA  0x%08lx 0x%08x", address + i, words[i]);
+      MOCK("      DATA  0x%08lx 0x%08x", address + 4 * i, words[i]);
     }
     MOCKBREAK();
     return;

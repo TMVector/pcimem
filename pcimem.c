@@ -54,7 +54,7 @@ int main(int argc, char **argv) {
     void *map_base, *virt_addr;
     uint64_t read_result, writeval, prev_read_result = 0;
     char *filename;
-    off_t target, target_base;
+    off_t target = 0, target_base;
     int access_type = 'w';
     int items_count = 1;
     int verbose = 1;
@@ -142,7 +142,7 @@ int main(int argc, char **argv) {
     stat(filename, &st);
     map_size = st.st_size;
 
-    printf("mmap(%d, 0x%x, 0x%x, 0x%x, %d, 0x%x)\n", 0, map_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, (int) target);
+    printf("mmap(%d, 0x%x, 0x%x, 0x%x, %d, 0x%x)\n", 0, map_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, (int) target_base);
 
     map_base = mmap(0, map_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, target_base);
     if(map_base == (void *) -1) PRINT_ERROR;
