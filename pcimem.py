@@ -82,6 +82,9 @@ class Pcimem(object):
         _pcimem.Pcimem_close(self.__handle)
         self.__handle = None
 
+    def get_handle(self):
+        return self.__handle
+
     def read_word(self, address):
         if self is None: raise ValueError("IO operation on closed pcimem")
 
